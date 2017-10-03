@@ -1496,7 +1496,12 @@ isp_exp_handle:
 		else
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_FRAME_DONE);
 
-#if 0
+#if 1
+		if (dev->first_flag == 0) {
+			dev->first_flag++;
+			goto set_next_output_addr;
+		}
+#else
 		if (dev->first_flag == 0) {
 			dev->first_flag++;
 			vfe_print("capture video mode!\n");
@@ -1614,6 +1619,7 @@ set_next_output_addr:
 		goto unlock;
 	}
 	buf = list_entry(dma_q->active.next->next,struct vfe_buffer, vb.queue);
+	vfe_print("next buffr 0x%p\n",buf);
 	vfe_set_addr(dev,buf);
 
 unlock:
