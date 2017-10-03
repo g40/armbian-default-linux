@@ -893,7 +893,8 @@ static void update_ccm_info(struct vfe_dev *dev , struct ccm_config *ccm_cfg)
 	dev->gpio                    = &ccm_cfg->gpio;
 	dev->flash_used              = ccm_cfg->flash_used;
 	dev->flash_type              = ccm_cfg->flash_type;
-
+	/* JAM */
+	dev->is_bayer_raw = 1;
 	/* print change */
 	vfe_dbg(0,"ccm_cfg pt = %p\n",ccm_cfg);
 	vfe_dbg(0,"ccm_cfg->sd = %p\n",ccm_cfg->sd);
