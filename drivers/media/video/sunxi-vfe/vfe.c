@@ -1391,6 +1391,8 @@ static void vfe_isp_stat_parse(struct isp_gen_settings * isp_gen)
  *  the interrupt routine
  */
 
+static int skipped = 0;
+
 static irqreturn_t vfe_isr(int irq, void *priv)
 {
 	int i;
@@ -1504,7 +1506,8 @@ isp_exp_handle:
 
 		//video buffer handle:
 		if ((&dma_q->active) == dma_q->active.next->next->next) {
-			vfe_warn("Only two buffer left for csi buf = 0x%p\n", list_entry(dma_q->active, struct vfe_buffer, vb.queue));
+			struct vfe_buffer* p = list_entry(dma_q->active, struct vfe_buffer, vb.queue);
+			vfe_warn("Only two buffer left for csi buf = 0x%p\n", p);
 			dev->first_flag=0;
 			goto unlock;
 		}
