@@ -1504,7 +1504,7 @@ isp_exp_handle:
 
 		//video buffer handle:
 		if ((&dma_q->active) == dma_q->active.next->next->next) {
-			vfe_warn("Only two buffer left for csi\n");
+			vfe_warn("Only two buffer left for csi buf = 0x%p\n", list_entry(dma_q->active, struct vfe_buffer, vb.queue));
 			dev->first_flag=0;
 			goto unlock;
 		}
@@ -1522,10 +1522,11 @@ isp_exp_handle:
                buf->vb.ts.tv_usec = timestamp.tv_nsec / 1000;
 #endif		
 		buf->vb.field_count++;
-		//if(frame_cnt%150 == 0){
-		//	printk("video buffer fps = %ld\n",100000000/(buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec)));
-		//}
-		vfe_dbg(2,"video buffer frame interval = %ld\n",buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec));
+		if(frame_cnt % 10 == 0)
+		{
+			vfe_dbg(1,"video buffer fps = %ld\n",100000000/(buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec)));
+		}
+		// vfe_dbg(2,"video buffer frame interval = %ld\n",buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec));
 		dev->sec = buf->vb.ts.tv_sec;
 		dev->usec = buf->vb.ts.tv_usec;
 		dev->ms += jiffies_to_msecs(jiffies - dev->jiffies);
