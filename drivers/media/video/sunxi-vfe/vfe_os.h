@@ -25,12 +25,12 @@ extern unsigned int vfe_dbg_lv;
 #define VFE_NOT_ADDR      -1
 
 //for internel driver debug
-#define vfe_dbg(l,x,arg...) if(vfe_dbg_en && l <= vfe_dbg_lv) printk(KERN_DEBUG"[VFE_DEBUG]"x,##arg)
+#define vfe_dbg(l,x,arg...) if(vfe_dbg_en && l <= vfe_dbg_lv) printk(KERN_DEBUG"%s(%d "x,__FILE__,__LINE__,##arg)
 //print when error happens
-#define vfe_err(x,arg...) printk(KERN_ERR"[VFE_ERR]"x,##arg)
-#define vfe_warn(x,arg...) printk(KERN_WARNING"[VFE_WARN]"x,##arg)
+#define vfe_err(x,arg...) printk(KERN_ERR"%s(%d "x,__FILE__,__LINE__,##arg)
+#define vfe_warn(x,arg...) printk(KERN_WARNING"%s(%d "x,__FILE__,__LINE__,##arg)
 //print unconditional, for important info
-#define vfe_print(x,arg...) printk(KERN_NOTICE"[VFE]"x,##arg)
+#define vfe_print(x,arg...) printk(KERN_NOTICE"%s(%d "x,__FILE__,__LINE__,##arg)
 
 typedef unsigned int __hdle;
 
