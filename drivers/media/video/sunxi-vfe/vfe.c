@@ -1495,6 +1495,8 @@ isp_exp_handle:
 			bsp_isp_irq_disable(FINISH_INT_EN);
 		else
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_FRAME_DONE);
+
+#if 0
 		if (dev->first_flag == 0) {
 			dev->first_flag++;
 			vfe_print("capture video mode!\n");
@@ -1511,6 +1513,7 @@ isp_exp_handle:
 			dev->first_flag=0;
 			goto unlock;
 		}
+#endif
 		buf = list_entry(dma_q->active.next,struct vfe_buffer, vb.queue);
 
 		/* Nobody is waiting on this buffer*/
