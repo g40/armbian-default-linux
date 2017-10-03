@@ -1506,8 +1506,7 @@ isp_exp_handle:
 
 		//video buffer handle:
 		if ((&dma_q->active) == dma_q->active.next->next->next) {
-			struct vfe_buffer* p = list_entry(dma_q->active, struct vfe_buffer, vb.queue);
-			vfe_warn("Only two buffer left for csi buf = 0x%p\n", p);
+			vfe_warn("Only two buffer left for csi buf = 0x%p\n", buf);
 			dev->first_flag=0;
 			goto unlock;
 		}
