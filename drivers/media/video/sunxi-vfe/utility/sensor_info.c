@@ -22,7 +22,8 @@ struct sensor_item sensor_list_t[] =
 {
 	//         name                  i2c_addr               sensor type               sensor size          sensor max pclk
 	{	"ov2640"		,	0x60,		SENSOR_YUV	,	 PIXEL_NUM_2M		, CORE_CLK_RATE_FOR_2M},
-	{	"ov5640"		,	0x78,		SENSOR_YUV	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M},
+//	{	"ov5640"		,	0x78,		SENSOR_YUV	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M},
+	{ "ov5640"		,	0x78,		SENSOR_RAW	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M },
 	{	"ov5647"		,	0x6c,		SENSOR_RAW	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M},
 	{	"ov5647_mipi"	,	0x6c,		SENSOR_RAW	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M},
 	{	"ov5650"		,	0x50,		SENSOR_RAW	,	 PIXEL_NUM_5M		, CORE_CLK_RATE_FOR_5M},
