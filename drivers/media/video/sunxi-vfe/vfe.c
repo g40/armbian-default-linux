@@ -845,7 +845,6 @@ static int inline vfe_is_generating(struct vfe_dev *dev)
 
 static void inline vfe_start_generating(struct vfe_dev *dev)
 {
-	dev->first_flag = 0;
 	set_bit(0, &dev->generating);
 	return;
 }
@@ -1496,13 +1495,6 @@ isp_exp_handle:
 			bsp_isp_irq_disable(FINISH_INT_EN);
 		else
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_FRAME_DONE);
-
-#if 1
-		if (dev->first_flag == 0) {
-			dev->first_flag++;
-			goto set_next_output_addr;
-		}
-#else
 		if (dev->first_flag == 0) {
 			dev->first_flag++;
 			vfe_print("capture video mode!\n");
@@ -1519,14 +1511,7 @@ isp_exp_handle:
 			dev->first_flag=0;
 			goto unlock;
 		}
-#endif
-		//
 		buf = list_entry(dma_q->active.next,struct vfe_buffer, vb.queue);
-		if (!buf)
-		{
-			vfe_warn("goto set_next_output_addr. buf = 0x%p\n", buf);
-			goto set_next_output_addr;
-		}
 
 		/* Nobody is waiting on this buffer*/
 		if (!waitqueue_active(&buf->vb.done)) {
@@ -1626,7 +1611,6 @@ set_next_output_addr:
 		goto unlock;
 	}
 	buf = list_entry(dma_q->active.next->next,struct vfe_buffer, vb.queue);
-	vfe_print("next buffr 0x%p\n",buf);
 	vfe_set_addr(dev,buf);
 
 unlock:
