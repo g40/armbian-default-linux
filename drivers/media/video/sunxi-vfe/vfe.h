@@ -372,7 +372,7 @@ struct vfe_dev {
   struct i2c_board_info   dev_sensor[MAX_INPUT_NUM];
   struct i2c_board_info   dev_act[MAX_INPUT_NUM];
  unsigned int   	   device_valid_flag[MAX_INPUT_NUM];
-  unsigned int            is_isp_used;
+//  unsigned int            is_isp_used;
   unsigned int            is_bayer_raw;
   struct vfe_fmt          *fmt;
   unsigned int            width;
@@ -406,6 +406,9 @@ struct vfe_dev {
   unsigned int						platform_id;
   unsigned int 			vfe_s_input_flag;
 };
+
+// DEV_IS_ISP_USED DEV_IS_ISP_USED
+#define DEV_IS_ISP_USED 0
 
 #endif  /* __VFE__H__ */
 

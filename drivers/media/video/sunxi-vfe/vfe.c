@@ -887,7 +887,7 @@ static void update_ccm_info(struct vfe_dev *dev , struct ccm_config *ccm_cfg)
 	dev->ctrl_para.hflip         = ccm_cfg->hflip;
 	dev->ctrl_para.vflip_thumb   = ccm_cfg->vflip_thumb;
 	dev->ctrl_para.hflip_thumb   = ccm_cfg->hflip_thumb;
-	dev->is_isp_used             = ccm_cfg->is_isp_used;
+	//dev->is_isp_used             = ccm_cfg->is_isp_used;
 	dev->is_bayer_raw            = ccm_cfg->is_bayer_raw;
 	dev->power                   = &ccm_cfg->power;
 	dev->gpio                    = &ccm_cfg->gpio;
@@ -900,7 +900,7 @@ static void update_ccm_info(struct vfe_dev *dev , struct ccm_config *ccm_cfg)
 	vfe_dbg(0,"ccm_cfg->sd = %p\n",ccm_cfg->sd);
 	vfe_dbg(0,"module vflip = %d hflip = %d\n",dev->ctrl_para.vflip,dev->ctrl_para.hflip);
 	vfe_dbg(0,"module vflip_thumb = %d hflip_thumb = %d\n",dev->ctrl_para.vflip_thumb,dev->ctrl_para.hflip_thumb);
-	vfe_dbg(0,"module is_isp_used = %d is_bayer_raw= %d\n",dev->is_isp_used,dev->is_bayer_raw);
+	vfe_dbg(0,"module is_isp_used = %d is_bayer_raw= %d\n",DEV_IS_ISP_USED,dev->is_bayer_raw);
 }
 
 static void update_isp_setting(struct vfe_dev *dev)
@@ -957,7 +957,7 @@ static inline void vfe_set_addr(struct vfe_dev *dev,struct vfe_buffer *buffer)
 	//	vfe_warn("isp_addr_pst = %d, isp_addr_curr = %d.......\n", isp_addr_pst, isp_addr_curr);
 	//}
 	//isp_addr_pst = addr_org /4;
-	if(dev->is_isp_used) {
+	if(DEV_IS_ISP_USED) {
 		vaddr = videobuf_queue_to_vaddr(vq, &buf->vb);
 #ifdef CONFIG_ARCH_SUN8IW8P1
 	if(ALIGN_16B(buf->vb.height) != buf->vb.height){
@@ -1413,7 +1413,7 @@ static irqreturn_t vfe_isr(int irq, void *priv)
 	if(vfe_is_generating(dev) == 0)
 	{
 		bsp_csi_int_clear_status(dev->vip_sel, dev->cur_ch,CSI_INT_ALL);
-		if(dev->is_isp_used)
+		if(DEV_IS_ISP_USED)
 			bsp_isp_clr_irq_status(ISP_IRQ_EN_ALL);
 		return IRQ_HANDLED;
 	}
@@ -1422,11 +1422,11 @@ static irqreturn_t vfe_isr(int irq, void *priv)
 	{
 		vfe_print("enter vfe int for nothing\n");
 		bsp_csi_int_clear_status(dev->vip_sel, dev->cur_ch,CSI_INT_ALL);
-		if(dev->is_isp_used)
+		if(DEV_IS_ISP_USED)
 			bsp_isp_clr_irq_status(ISP_IRQ_EN_ALL);
 		return IRQ_HANDLED;
 	}
-	if(dev->is_isp_used && dev->is_bayer_raw)
+	if(DEV_IS_ISP_USED && dev->is_bayer_raw)
 	{
 		//update_sensor_setting:
 		if(status.vsync_trig)
@@ -1463,14 +1463,14 @@ static irqreturn_t vfe_isr(int irq, void *priv)
 		}
 		vfe_err("reset csi module\n");
 		bsp_csi_reset(dev->vip_sel);
-		if(dev->is_isp_used)
+		if(DEV_IS_ISP_USED)
 			goto isp_exp_handle;
 		else
 			goto unlock;
 	}
 
 isp_exp_handle:
-	if(dev->is_isp_used) {
+	if(DEV_IS_ISP_USED) {
 		if(bsp_isp_get_irq_status(SRC0_FIFO_INT_EN)) {
 			vfe_err("isp source0 fifo overflow\n");
 			bsp_isp_clr_irq_status(SRC0_FIFO_INT_EN);
@@ -1480,7 +1480,7 @@ isp_exp_handle:
 	vfe_dbg(3,"status vsync = %d, framedone = %d, capdone = %d\n",status.vsync_trig,status.frame_done,status.capture_done);
 	if (dev->capture_mode == V4L2_MODE_IMAGE)
 	{
-		if(dev->is_isp_used)
+		if(DEV_IS_ISP_USED)
 			bsp_isp_irq_disable(FINISH_INT_EN);
 		else
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_CAPTURE_DONE);
@@ -1491,7 +1491,7 @@ isp_exp_handle:
 		wake_up(&buf->vb.done);
 		goto unlock;
 	} else {
-		if(dev->is_isp_used)
+		if(DEV_IS_ISP_USED)
 			bsp_isp_irq_disable(FINISH_INT_EN);
 		else
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_FRAME_DONE);
@@ -1543,7 +1543,7 @@ isp_exp_handle:
 
 		//isp_stat_handle:
 
-		if(dev->is_isp_used && dev->is_bayer_raw) {
+		if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
 			list_for_each_entry(stat_buf_pt, &isp_stat_bq->locked, queue)
 			{
 				if(stat_buf_pt->isp_stat_buf.buf_status == BUF_LOCKED) {
@@ -1599,7 +1599,7 @@ isp_exp_handle:
 	}
 
 set_isp_stat_addr:
-	if(dev->is_isp_used && dev->is_bayer_raw) {
+	if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
 		//stat_buf_pt = list_entry(isp_stat_bq->active.next->next, struct vfe_isp_stat_buf, queue);
 		stat_buf_pt = list_entry(isp_stat_bq->active.next, struct vfe_isp_stat_buf, queue);
 		bsp_isp_set_statistics_addr((unsigned int)(stat_buf_pt->dma_addr));
@@ -1618,7 +1618,7 @@ unlock:
 	spin_unlock_irqrestore(&dev->slock, flags);
 
 	if ( ( (dev->capture_mode == V4L2_MODE_VIDEO)||(dev->capture_mode == V4L2_MODE_PREVIEW) )
-							&& dev->is_isp_used && bsp_isp_get_irq_status(FINISH_INT_EN))
+							&& DEV_IS_ISP_USED && bsp_isp_get_irq_status(FINISH_INT_EN))
 	{
 		//if(bsp_isp_get_para_ready())
 		{
@@ -1628,7 +1628,7 @@ unlock:
 			bsp_isp_set_para_ready();
 		}
 	}
-	if(dev->is_isp_used) {
+	if(DEV_IS_ISP_USED) {
 		bsp_isp_clr_irq_status(FINISH_INT_EN);
 		bsp_isp_irq_enable(FINISH_INT_EN);
 	} else {
@@ -1921,7 +1921,7 @@ static enum v4l2_mbus_pixelcode *try_fmt_internal(struct vfe_dev *dev,struct v4l
   //find the expect bus format via frame format list
   if(pix_fmt_type == YUV422_PL || pix_fmt_type == YUV422_SPL || \
     pix_fmt_type == YUV420_PL || pix_fmt_type == YUV420_SPL) {
-    if(dev->is_isp_used&&dev->is_bayer_raw) {
+    if(DEV_IS_ISP_USED&&dev->is_bayer_raw) {
      // vfe_print("using isp at %s!\n",__func__);
       for(bus_pix_code = try_bayer_rgb_bus; bus_pix_code < try_bayer_rgb_bus + N_TRY_BAYER; bus_pix_code++) {
         ccm_fmt.code  = *bus_pix_code;
@@ -2328,7 +2328,7 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
     dev->ch[i].size.voffset = ccm_fmt.reserved[1];
   }
 
-  if(dev->is_isp_used) {
+  if(DEV_IS_ISP_USED) {
     isp_fmt[MAIN_CH] = pix_fmt_v4l2_to_common(f->fmt.pix.pixelformat);
     isp_size[MAIN_CH].width = ccm_fmt.width;
     isp_size[MAIN_CH].height = ccm_fmt.height;
@@ -2475,7 +2475,7 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
   dev->height = ccm_fmt.height;
 
 	dev->mbus_type = mbus_cfg.type;
-	if(dev->is_isp_used ==1 )
+	if(DEV_IS_ISP_USED ==1 )
 	{
 		vfe_dbg(0,"isp_module_init start!\n");
 		if(dev->is_bayer_raw == 1)
@@ -2616,7 +2616,7 @@ static int vidioc_streamon(struct file *file, void *priv, enum v4l2_buf_type i)
   bsp_csi_enable(dev->vip_sel);
   bsp_csi_disable(dev->vip_sel);
   bsp_csi_enable(dev->vip_sel);
-  if(dev->is_isp_used)
+  if(DEV_IS_ISP_USED)
     bsp_isp_enable();
   /* Resets frame counters */
   dev->ms = 0;
@@ -2625,7 +2625,7 @@ static int vidioc_streamon(struct file *file, void *priv, enum v4l2_buf_type i)
   dma_q->frame = 0;
   dma_q->ini_jiffies = jiffies;
 
-  if (dev->is_isp_used && dev->is_bayer_raw) {
+  if (DEV_IS_ISP_USED && dev->is_bayer_raw) {
     /* initial for isp statistic buffer queue */
     INIT_LIST_HEAD(&isp_stat_bq->active);
     INIT_LIST_HEAD(&isp_stat_bq->locked);
@@ -2641,7 +2641,7 @@ static int vidioc_streamon(struct file *file, void *priv, enum v4l2_buf_type i)
 
   buf = list_entry(dma_q->active.next,struct vfe_buffer, vb.queue);
   vfe_set_addr(dev,buf);
-  if (dev->is_isp_used && dev->is_bayer_raw) {
+  if (DEV_IS_ISP_USED && dev->is_bayer_raw) {
     stat_buf_pt = list_entry(isp_stat_bq->active.next, struct vfe_isp_stat_buf, queue);
 	if(NULL == stat_buf_pt){
 		vfe_err("stat_buf_pt =null");
@@ -2650,11 +2650,11 @@ static int vidioc_streamon(struct file *file, void *priv, enum v4l2_buf_type i)
 	}
   }
 
-  if (dev->is_isp_used) {
+  if (DEV_IS_ISP_USED) {
   bsp_isp_set_para_ready();
     bsp_isp_clr_irq_status(ISP_IRQ_EN_ALL);
     bsp_isp_irq_enable(FINISH_INT_EN | SRC0_FIFO_INT_EN);
-		if (dev->is_isp_used && dev->is_bayer_raw)
+		if (DEV_IS_ISP_USED && dev->is_bayer_raw)
 			bsp_csi_int_enable(dev->vip_sel, dev->cur_ch, CSI_INT_VSYNC_TRIG);
   } else {
     bsp_csi_int_clear_status(dev->vip_sel, dev->cur_ch,CSI_INT_ALL);
@@ -2672,21 +2672,21 @@ static int vidioc_streamon(struct file *file, void *priv, enum v4l2_buf_type i)
 	usleep_range(10000,11000);
 
 	if (dev->capture_mode == V4L2_MODE_IMAGE) {
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_image_capture_start();
 		bsp_csi_cap_start(dev->vip_sel, dev->total_rx_ch,CSI_SCAP);
 	} else {
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_video_capture_start();
 		bsp_csi_cap_start(dev->vip_sel, dev->total_rx_ch,CSI_VCAP);
 	}
 #else
 	if (dev->capture_mode == V4L2_MODE_IMAGE) {
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_image_capture_start();
 		bsp_csi_cap_start(dev->vip_sel, dev->total_rx_ch,CSI_SCAP);
 	} else {
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_video_capture_start();
 		bsp_csi_cap_start(dev->vip_sel, dev->total_rx_ch,CSI_VCAP);
 	}
@@ -2726,7 +2726,7 @@ static int vidioc_streamoff(struct file *file, void *priv, enum v4l2_buf_type i)
   dma_q->frame = 0;
   dma_q->ini_jiffies = jiffies;
 
-	if (dev->is_isp_used) {
+	if (DEV_IS_ISP_USED) {
 		vfe_dbg(0,"disable isp int in streamoff\n");
 		bsp_isp_irq_disable(ISP_IRQ_EN_ALL);
 		bsp_isp_clr_irq_status(ISP_IRQ_EN_ALL);
@@ -2738,12 +2738,12 @@ static int vidioc_streamoff(struct file *file, void *priv, enum v4l2_buf_type i)
 
 	if (dev->capture_mode == V4L2_MODE_IMAGE) {
 		bsp_csi_cap_stop(dev->vip_sel, dev->total_rx_ch,CSI_SCAP);
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_image_capture_stop();
 		vfe_dbg(0,"dev->capture_mode = %d\n",dev->capture_mode);
 	} else {
 		bsp_csi_cap_stop(dev->vip_sel, dev->total_rx_ch,CSI_VCAP);
-		if (dev->is_isp_used)
+		if (DEV_IS_ISP_USED)
 			bsp_isp_video_capture_stop();
 		vfe_dbg(0,"dev->capture_mode = %d\n",dev->capture_mode);
 	}
@@ -2764,7 +2764,7 @@ static int vidioc_streamoff(struct file *file, void *priv, enum v4l2_buf_type i)
     vfe_err("dma_q->active is not empty!\n");
   }
   //printk("%s, line: %d\n", __FUNCTION__, __LINE__);
-  if(dev->is_isp_used)
+  if(DEV_IS_ISP_USED)
     bsp_isp_disable();
   bsp_csi_disable(dev->vip_sel);
 streamoff_unlock:
@@ -2920,7 +2920,7 @@ static int internal_s_input(struct vfe_dev *dev, unsigned int i)
 	}
 
 	bsp_csi_disable(dev->vip_sel);
-	if(dev->is_isp_used) {
+	if(DEV_IS_ISP_USED) {
 		vfe_ctrl_para_reset(dev);
 		bsp_isp_disable();
 		bsp_isp_enable();
@@ -3037,7 +3037,7 @@ static int vidioc_queryctrl(struct file *file, void *priv,
 {
   struct vfe_dev *dev = video_drvdata(file);
   int ret;
-  if(dev->is_isp_used && dev->is_bayer_raw) {
+  if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
     /* Fill in min, max, step and default value for these controls. */
     /* see include/linux/videodev2.h for details */
     /* see sensor_s_parm and sensor_g_parm for the meaning of value */
@@ -3202,7 +3202,7 @@ static int vidioc_g_ctrl(struct file *file, void *priv,
     return ret;
   }
 
-  if(dev->is_isp_used && dev->is_bayer_raw) {
+  if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
     switch (ctrl->id) {
       //V4L2_CID_BASE
       case V4L2_CID_BRIGHTNESS:
@@ -3476,7 +3476,7 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
     }
   }
 
-  if(dev->is_isp_used && dev->is_bayer_raw) {
+  if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
 	vfe_dbg(0,"s_ctrl: %s, value: 0x%x\n",v4l2_ctrl_get_name(ctrl->id),ctrl->value);
     switch (ctrl->id) {
       //V4L2_CID_BASE
@@ -3540,7 +3540,7 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
 		}
 		dev->isp_gen_set_pt->vflip = ctrl->value;
 		dev->ctrl_para.vflip = ctrl->value;
-		if(dev->is_isp_used) {
+		if(DEV_IS_ISP_USED) {
 			bsp_isp_set_output_addr(dev->isp_gen_set_pt->output_addr);
 		}
 		break;
@@ -4118,7 +4118,7 @@ static int vfe_close(struct file *file)
 	bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_ALL);
 	bsp_csi_cap_stop(dev->vip_sel, dev->cur_ch,CSI_VCAP);
 	bsp_csi_disable(dev->vip_sel);
-	if(dev->is_isp_used)
+	if(DEV_IS_ISP_USED)
 		bsp_isp_disable();
 	if(dev->mbus_type == V4L2_MBUS_CSI2) {
 		bsp_mipi_csi_protocol_disable(dev->mipi_sel);
@@ -4937,6 +4937,7 @@ static int cpy_ccm_sub_device_cfg(struct ccm_config *ccm_cfg, int n)
 	{
 		ccm_cfg->is_bayer_raw = 1;
 		ccm_cfg->is_isp_used = 1;
+		ccm_cfg->is_isp_used = 0;
 	}
 	else if(ccm_cfg->sensor_cfg_ini->camera_inst[n].sensor_type == SENSOR_YUV)
 	{
