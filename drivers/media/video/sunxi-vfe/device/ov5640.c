@@ -114,20 +114,6 @@ unsigned int cap_manual_gain=0x10;
 #define MAX_FRM_CAP 1
 #endif
 
-#define _USE_BAYER
-
-#define ISP_CTL0 0x5000
-#define ISP_CTL1 0x5001
-
-#if defined(_USE_BAYER)
-// https://www.eevblog.com/forum/microcontrollers/anyone-used-an-ov5640-at-90fps/
-#define ISP_CTL0_FLAGS 0xA7
-#define ISP_CTL1_FLAGS 0x03
-#else
-#define ISP_CTL0_FLAGS 0xA7
-// works for YUV, not for Bayer
-#define ISP_CTL1_FLAGS 0xA3
-#endif
 
 /*
  * Our nominal (default) frame rate.
@@ -276,8 +262,8 @@ static struct regval_list sensor_default_regs[] = {
   {0x460b,0x35},//
   {0x460c,0x20},//
   {0x4837,0x22},
-  { ISP_CTL0,ISP_CTL0_FLAGS }, // ISP Control 0
-  { ISP_CTL1,ISP_CTL1_FLAGS}, // ISP Control 1
+  {0x5000,0xa7},//
+  {0x5001,0xa3},//
   
   {0x4740,0x21},//hsync,vsync,clock pol,reference to application note,spec is wrong
                   
@@ -543,7 +529,7 @@ static struct regval_list sensor_qsxga_regs[] = { //qsxga: 2592*1936
   {0x3a15,0xb0}, //50HZ max exposure limit LSB   
   {0x4004,0x06}, //BLC line number               
   {0x4837,0x2c},//PCLK period                    
-  {ISP_CTL1,ISP_CTL1_FLAGS},//ISP effect    
+  {0x5001,0xa3},//ISP effect    
   
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x      
@@ -633,7 +619,7 @@ static struct regval_list sensor_qxga_regs[] = { //qxga: 2048*1536
   {0x3a15,0xb0}, //50HZ max exposure limit LSB
   {0x4004,0x06}, //BLC line number                                         
   {0x4837,0x2c},//PCLK period                              
-  {ISP_CTL1,ISP_CTL1_FLAGS},//ISP effect  
+  {0x5001,0xa3},//ISP effect  
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x   
   //power down release
@@ -723,7 +709,7 @@ static struct regval_list sensor_uxga_regs[] = { //UXGA: 1600*1200
                                                                                                                                                                                
                                                                                                                        
   {0x4837,0x2c}, //PCLK period                                                                                                  
-  {ISP_CTL1,ISP_CTL1_FLAGS}, //ISP effect  
+  {0x5001,0xa3}, //ISP effect  
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x                                                                                  
   //power down release
@@ -822,7 +808,7 @@ static struct regval_list sensor_sxga_regs[] = { //SXGA: 1280*960
   {0x4004,0x06}, //BLC line number                                                                                  
                                                                              
   {0x4837,0x2c}, //PCLK period
-  {ISP_CTL1,ISP_CTL1_FLAGS}, //ISP effect   
+  {0x5001,0xa3}, //ISP effect   
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x   
   {0x3a18,0x00},//
@@ -1010,7 +996,7 @@ static struct regval_list sensor_xga_regs[] = { //XGA: 1024*768
   {0x4004,0x02},  //BLC line number    
   
   {0x4837,0x22},  //PCLK period    
-  {ISP_CTL1,ISP_CTL1_FLAGS},  //ISP effect
+  {0x5001,0xa3},  //ISP effect
                                                                                                                                                      
   {0x3618,0x04},                               
   {0x3612,0x2b},                               
@@ -1022,7 +1008,7 @@ static struct regval_list sensor_xga_regs[] = { //XGA: 1024*768
   {0x3a15,0xb0}, //50HZ max exposure limit LSB
   {0x4004,0x06}, //BLC line number            
   {0x4837,0x2c}, //PCLK period 
-  {ISP_CTL1,ISP_CTL1_FLAGS}, //ISP effect
+  {0x5001,0xa3}, //ISP effect
   
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x 
@@ -1310,7 +1296,7 @@ static struct regval_list sensor_svga_regs[] = { //SVGA: 800*600
   {0x4004,0x02},  //BLC line number    
   
   {0x4837,0x22},  //PCLK period    
-  {ISP_CTL1,ISP_CTL1_FLAGS},  //ISP effect
+  {0x5001,0xa3},  //ISP effect
   
   {0x302c,0x42},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x 
@@ -1405,7 +1391,7 @@ static struct regval_list sensor_vga_regs[] = { //VGA:  640*480
    
   
   {0x4837,0x22},  //PCLK period    
-  {ISP_CTL1,ISP_CTL1_FLAGS},  //ISP effect
+  {0x5001,0xa3},  //ISP effect
 #ifndef FPGA_VER  
   {0x302c,0x02},//bit[7:6]: output drive capability
             //00: 1x   01: 2x  10: 3x  11: 4x 
@@ -2562,12 +2548,8 @@ static struct regval_list sensor_fmt_yuv422_uyvy[] = {
 };
 
 static struct regval_list sensor_fmt_raw[] = {
-//	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
-#if defined(_USE_BAYER)
-	{ 0x4300,0x00 },  // 0x00 BGGR sequence
-#else
-	// empty
-#endif
+	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
+//	{ 0x4300,0x00 },  // 0x00 BGGR sequence
 };
 
 static struct regval_list ae_average_tbl[] = {
