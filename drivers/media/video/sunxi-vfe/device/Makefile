@@ -11,6 +11,7 @@ obj-$(CONFIG_H22_MIPI)		+= h22_mipi.o
 
 else
 obj-m			+= ov5640.o
+obj-m			+= ov5640-ng.o
 obj-m			+= ov2640.o
 obj-m			+= ov7736.o
 obj-m			+= s5k4ec.o
