@@ -2548,8 +2548,8 @@ static struct regval_list sensor_fmt_yuv422_uyvy[] = {
 };
 
 static struct regval_list sensor_fmt_raw[] = {
-	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
-//	{ 0x4300,0x00 },  // 0x00 BGGR sequence
+//	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
+	{ 0x4300,0x00 },  // 0x00 BGGR sequence
 };
 
 static struct regval_list ae_average_tbl[] = {
