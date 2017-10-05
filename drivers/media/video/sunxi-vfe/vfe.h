@@ -75,13 +75,6 @@ struct vfe_buffer {
   int image_quality;
 };
 
-struct vfe_dmaqueue {
-  struct list_head  active;
-  /* Counters to control fps rate */
-  int               frame;
-  int               ini_jiffies;
-};
-
 struct vfe_isp_stat_buf {
   unsigned int              id;
   struct list_head          queue;
@@ -291,6 +284,9 @@ struct sunxi_vip_platform_data {
 }; 
 
 
+struct vfe_dmaqueue {
+	struct list_head  active;
+};
 
 static LIST_HEAD(devlist);
 struct vfe_dev {
@@ -303,7 +299,6 @@ struct vfe_dev {
   int                     vip_define_sensor_list;
   struct platform_device  *pdev;
   int            id;
-  spinlock_t              slock;
   struct mutex            stream_lock;
   
 	/* suspend */
@@ -322,13 +317,15 @@ struct vfe_dev {
 	
   /* various device info */
   struct video_device     *vfd;
-  struct vfe_dmaqueue     vidq;
   struct vfe_isp_stat_buf_queue  isp_stat_bq;
   /* Several counters */
   unsigned                ms;
   unsigned long           jiffies;
   /* video capture */
   struct videobuf_queue   vb_vidq;
+  struct list_head		  dma_queue;
+  // struct vfe_dmaqueue     dma_queue;
+  spinlock_t              dma_queue_lock;
   unsigned int            capture_mode;
   /*working state*/
   unsigned long           generating;
