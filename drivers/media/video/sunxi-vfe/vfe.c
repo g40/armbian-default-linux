@@ -1458,7 +1458,7 @@ static irqreturn_t vfe_isr(int irq, void *priv)
 #endif		
 
 	FUNCTION_LOG;
-	vfe_dbg(0,"vfe interrupt!!!\n");
+	// vfe_dbg(0,"vfe interrupt!!!\n");
 	if(vfe_is_generating(dev) == 0)
 	{
 		bsp_csi_int_clear_status(dev->vip_sel, dev->cur_ch,CSI_INT_ALL);
@@ -1546,39 +1546,32 @@ isp_exp_handle:
 			bsp_csi_int_disable(dev->vip_sel, dev->cur_ch,CSI_INT_FRAME_DONE);
 		if (dev->first_flag == 0) {
 			dev->first_flag++;
-			vfe_print("capture video mode!\n");
+			// vfe_print("capture video mode!\n");
 			goto set_isp_stat_addr;
 		}
 		if (dev->first_flag == 1) {
 			dev->first_flag++;
-			vfe_print("capture video first frame done!\n");
+			// vfe_print("capture video first frame done!\n");
 		}
 
 		//video buffer handle:
 		if (dma_q == dma_q->next->next->next) {
-			vfe_warn("Only two buffer left for csi buf = 0x%p\n", buf);
+			// vfe_warn("Only two buffer left for csi buf = 0x%p\n", buf);
 			dev->first_flag=0;
 			goto unlock;
 		}
-		buf = list_entry(dma_q->next,struct vfe_buffer, vb.queue);
 
-		/* Nobody is waiting on this buffer*/
-		if (!waitqueue_active(&buf->vb.done)) {
-			vfe_warn(" Nobody is waiting on this video buffer,buf = 0x%p\n",buf);
-		}
+		buf = list_entry(dma_q->next,struct vfe_buffer, vb.queue);
+		vfe_warn("[%04d] got buffer 0x%p waiting %s\n", frame_cnt, buf, (waitqueue_active(&buf->vb.done) ? "true" : "false"));
 		list_del(&buf->vb.queue);
 		do_gettimeofday(&buf->vb.ts);
+
 #ifdef CONFIG_ARCH_SUN8IW8P1		
                ktime_get_ts(&timestamp);
                buf->vb.ts.tv_sec = timestamp.tv_sec;
                buf->vb.ts.tv_usec = timestamp.tv_nsec / 1000;
 #endif		
 		buf->vb.field_count++;
-		if(frame_cnt % 10 == 0)
-		{
-			vfe_dbg(1,"video buffer fps = %ld\n",100000000/(buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec)));
-		}
-		// vfe_dbg(2,"video buffer frame interval = %ld\n",buf->vb.ts.tv_sec*1000000+buf->vb.ts.tv_usec - (dev->sec*1000000+dev->usec));
 		dev->sec = buf->vb.ts.tv_sec;
 		dev->usec = buf->vb.ts.tv_usec;
 		dev->ms += jiffies_to_msecs(jiffies - dev->jiffies);
