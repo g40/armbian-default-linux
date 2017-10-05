@@ -4305,7 +4305,8 @@ static struct cfg_array sensor_ev[] = {
 
 static struct regval_list sensor_fmt_yuv422_yuyv[] = {  
   {0x4300,0x30},  //YUYV
-  //{REG_TERM,VAL_TERM},
+  { ISP_CTL0, 0xA7 },
+  { ISP_CTL1, 0xA3 }, // SDE, scaling, UV avg, color matrix, AWB enabled
 };
 
 static struct regval_list sensor_fmt_yuv422_yvyu[] = {
@@ -4324,8 +4325,10 @@ static struct regval_list sensor_fmt_yuv422_uyvy[] = {
 };
 
 static struct regval_list sensor_fmt_raw[] = {
-	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
-//	{ 0x4300,0x00 },  // 0x00 BGGR sequence
+	// { 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
+	{ 0x4300,0x00 },  // 0x00 BGGR sequence
+	{ ISP_CTL0, 0xA7 },
+	{ ISP_CTL1, 0x02 }, // Color matrix and AWB enabled
 };
 
 static struct regval_list ae_average_tbl[] = {
