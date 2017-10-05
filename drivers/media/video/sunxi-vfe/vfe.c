@@ -1576,76 +1576,16 @@ isp_exp_handle:
 		dev->usec = buf->vb.ts.tv_usec;
 		dev->ms += jiffies_to_msecs(jiffies - dev->jiffies);
 		dev->jiffies = jiffies;
- 		buf->vb.image_quality = dev->isp_3a_result_pt->image_quality.dwval;
+ 		// buf->vb.image_quality = dev->isp_3a_result_pt->image_quality.dwval;
 
 		buf->vb.state = VIDEOBUF_DONE;
-		buf->image_quality = dev->isp_3a_result_pt->image_quality.dwval;
+		// buf->image_quality = dev->isp_3a_result_pt->image_quality.dwval;
 
 		wake_up(&buf->vb.done);
 
-		//isp_stat_handle:
-
-		if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
-			list_for_each_entry(stat_buf_pt, &isp_stat_bq->locked, queue)
-			{
-				if(stat_buf_pt->isp_stat_buf.buf_status == BUF_LOCKED) {
-					vfe_dbg(3,"find isp stat buf locked!\n");
-					goto set_next_output_addr;
-					vfe_dbg(3,"isp_stat_bq->locked = %p\n",&isp_stat_bq->locked);
-					vfe_dbg(3,"isp_stat_bq->locked.next = %p\n",isp_stat_bq->locked.next);
-					vfe_dbg(3,"isp_stat_bq->isp_stat[%d].queue = %p\n",stat_buf_pt->id,&isp_stat_bq->isp_stat[stat_buf_pt->id].queue);
-					vfe_dbg(3,"isp_stat_bq->isp_stat[%d].queue.prev = %p\n",stat_buf_pt->id,isp_stat_bq->isp_stat[stat_buf_pt->id].queue.prev);
-					vfe_dbg(3,"isp_stat_bq->isp_stat[%d].queue.next = %p\n",stat_buf_pt->id,isp_stat_bq->isp_stat[stat_buf_pt->id].queue.next);
-				}
-			}
-			for (i = 0; i < MAX_ISP_STAT_BUF; i++)
-			{
-				stat_buf_pt = &isp_stat_bq->isp_stat[i];
-				if(stat_buf_pt->isp_stat_buf.buf_status == BUF_IDLE) {
-					vfe_dbg(3,"find isp stat buf idle!\n");
-					list_move_tail(&stat_buf_pt->queue, &isp_stat_bq->active);
-					stat_buf_pt->isp_stat_buf.buf_status = BUF_ACTIVE;
-				}
-			}
-
-			vfe_dbg(3,"before list empty isp_stat_bq->active = %p\n",&isp_stat_bq->active);
-			vfe_dbg(3,"before list empty isp_stat_bq->active.prev = %p\n",isp_stat_bq->active.prev);
-			vfe_dbg(3,"before list empty isp_stat_bq->active.next = %p\n",isp_stat_bq->active.next);
-
-			//judge if the isp stat queue has been written to the last
-			if (list_empty(&isp_stat_bq->active)) {
-				vfe_err("No active isp stat queue to serve\n");
-				goto set_next_output_addr;
-			}
-			vfe_dbg(3,"after list empty isp_stat_bq->active = %p\n",&isp_stat_bq->active);
-			vfe_dbg(3,"after list empty isp_stat_bq->active.prev = %p\n",isp_stat_bq->active.prev);
-			vfe_dbg(3,"after list empty isp_stat_bq->active.next = %p\n",isp_stat_bq->active.next);
-
-
-			//delete the ready buffer from the actvie queue
-			//add the ready buffer to the locked queue
-			//stat_buf_pt = list_first_entry(&isp_stat_bq->active, struct vfe_isp_stat_buf, queue);
-			stat_buf_pt = list_entry(isp_stat_bq->active.next, struct vfe_isp_stat_buf, queue);
-
-			list_move_tail(&stat_buf_pt->queue,&isp_stat_bq->locked);
-			stat_buf_pt->isp_stat_buf.buf_status = BUF_LOCKED;
-			dev->isp_gen_set_pt->stat.stat_buf_whole = &isp_stat_bq->isp_stat[stat_buf_pt->id].isp_stat_buf;
-			vfe_isp_stat_parse(dev->isp_gen_set_pt);
-			isp_stat_bq->isp_stat[stat_buf_pt->id].isp_stat_buf.frame_number++;
-
-			if ((&isp_stat_bq->active) == isp_stat_bq->active.next->next) {
-				vfe_warn("No more isp stat free frame on next time\n");
-				goto set_next_output_addr;
-			}
-		}
 	}
 
 set_isp_stat_addr:
-	if(DEV_IS_ISP_USED && dev->is_bayer_raw) {
-		//stat_buf_pt = list_entry(isp_stat_bq->active.next->next, struct vfe_isp_stat_buf, queue);
-		stat_buf_pt = list_entry(isp_stat_bq->active.next, struct vfe_isp_stat_buf, queue);
-		bsp_isp_set_statistics_addr((unsigned int)(stat_buf_pt->dma_addr));
-	}
 set_next_output_addr:
 //buf = list_entry(dma_q->active.next->next,struct vfe_buffer, vb.queue);
 	if (list_empty(dma_q) || dma_q->next->next == (dma_q) ) {
@@ -1654,8 +1594,7 @@ set_next_output_addr:
 	}
 	
 	// JME: bug? bug?
-	// buf = list_entry(dma_q->next->next,struct vfe_buffer, vb.queue);
-	buf = list_entry(dma_q->next, struct vfe_buffer, vb.queue);
+	buf = list_entry(dma_q->next->next,struct vfe_buffer, vb.queue);
 	vfe_set_addr(dev,buf);
 
 unlock:
@@ -1827,7 +1766,7 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 {
 	struct vfe_fmt *fmt;
 
-	vfe_dbg(0,"vidioc_enum_fmt_vid_cap\n");
+	// vfe_dbg(0,"vidioc_enum_fmt_vid_cap\n");
 
 	if (f->index > ARRAY_SIZE(formats)-1) {
 		return -EINVAL;
@@ -1845,7 +1784,7 @@ static int vidioc_enum_framesizes(struct file *file, void *fh,
 {
 	struct vfe_dev *dev = video_drvdata(file);
 
-	vfe_dbg(0, "vidioc_enum_framesizes\n");
+	// vfe_dbg(0, "vidioc_enum_framesizes\n");
 
 	if (dev == NULL || dev->sd->ops->video->enum_framesizes==NULL) {
 		return -EINVAL;
