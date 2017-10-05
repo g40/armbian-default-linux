@@ -1392,8 +1392,57 @@ static void vfe_isp_stat_parse(struct isp_gen_settings * isp_gen)
  *  the interrupt routine
  */
 
+#if 0
+static irqreturn_t vfe_isr(int irq, void *priv)
+{
+	long flags = 0;
+	struct vfe_dev *dev = (struct vfe_dev *)priv;
+	struct vfe_buffer *buf = 0;
+	struct list_head *dma_q = &dev->dma_queue;
 
+	spin_lock_irqsave(&dev->dma_queue_lock, flags);
 
+	if (dev->capture_mode == V4L2_MODE_IMAGE)
+	{
+		bsp_csi_int_disable(dev->vip_sel, dev->cur_ch, CSI_INT_CAPTURE_DONE);
+		buf = list_entry(dma_q->next, struct vfe_buffer, vb.queue);
+		list_del(&buf->vb.queue);
+		buf->vb.state = VIDEOBUF_DONE;
+		wake_up(&buf->vb.done);
+	}
+	else 
+	{
+		bsp_csi_int_disable(dev->vip_sel, dev->cur_ch, CSI_INT_FRAME_DONE);
+		if (!list_empty(dma_q))
+		{
+			buf = list_entry(dma_q->next, struct vfe_buffer, vb.queue);
+			list_del(&buf->vb.queue);
+
+			/* Nobody is waiting on this buffer*/
+			if (!waitqueue_active(&buf->vb.done)) {
+				vfe_warn(" Nobody is waiting on this video buffer,buf = 0x%p\n", buf);
+			}
+			do_gettimeofday(&buf->vb.ts);
+			buf->vb.state = VIDEOBUF_DONE;
+			wake_up(&buf->vb.done);
+			if (!list_empty(dma_q))
+			{
+				buf = list_entry(dma_q->next, struct vfe_buffer, vb.queue);
+				vfe_set_addr(dev, buf);
+			}
+		}
+	}
+
+	spin_unlock_irqrestore(&dev->dma_queue_lock, flags);
+
+	bsp_csi_int_clear_status(dev->vip_sel, dev->cur_ch, CSI_INT_FRAME_DONE);
+	if ((dev->capture_mode == V4L2_MODE_VIDEO) || (dev->capture_mode == V4L2_MODE_PREVIEW))
+		bsp_csi_int_enable(dev->vip_sel, dev->cur_ch, CSI_INT_FRAME_DONE);
+
+	return IRQ_HANDLED;
+
+}
+#else
 static irqreturn_t vfe_isr(int irq, void *priv)
 {
 	int i;
@@ -1610,7 +1659,10 @@ set_next_output_addr:
 		vfe_print("No active queue to serve\n");
 		goto unlock;
 	}
-	buf = list_entry(dma_q->next->next,struct vfe_buffer, vb.queue);
+	
+	// JME: bug? bug?
+	// buf = list_entry(dma_q->next->next,struct vfe_buffer, vb.queue);
+	buf = list_entry(dma_q->next, struct vfe_buffer, vb.queue);
 	vfe_set_addr(dev,buf);
 
 unlock:
@@ -1640,6 +1692,7 @@ unlock:
 	}
 	return IRQ_HANDLED;
 }
+#endif
 
 /*
  * Videobuf operations
