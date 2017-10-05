@@ -972,7 +972,7 @@ static inline void vfe_set_addr(struct vfe_dev *dev,struct vfe_buffer *buffer)
 		bsp_csi_set_addr(dev->vip_sel, addr_org);
 	}
 	buf->image_quality = dev->isp_3a_result_pt->image_quality.dwval;
-	vfe_dbg(3,"csi_buf_addr_orginal=%x\n", addr_org);
+	// vfe_dbg(3,"csi_buf_addr_orginal=%x\n", addr_org);
 }
 
 static unsigned int common_af_status_to_v4l2(enum auto_focus_status af_status)
@@ -1496,8 +1496,8 @@ static irqreturn_t vfe_isr(int irq, void *priv)
 	//spin_lock(&dev->slock);
 	spin_lock_irqsave(&dev->dma_queue_lock, flags);
 	FUNCTION_LOG;
-	if(dev->is_bayer_raw)
-		vfe_dbg(0,"LV = %d, temp = %d\n",(dev->isp_gen_set_pt->isp_ini_cfg.isp_3a_settings.ae_max_lv - dev->isp_gen_set_pt->exp_settings.tbl_cnt*4), dev->isp_gen_set_pt->color_temp);
+	//if(dev->is_bayer_raw)
+	//	vfe_dbg(0,"LV = %d, temp = %d\n",(dev->isp_gen_set_pt->isp_ini_cfg.isp_3a_settings.ae_max_lv - dev->isp_gen_set_pt->exp_settings.tbl_cnt*4), dev->isp_gen_set_pt->color_temp);
 	//exception handle:
 	if((status.buf_0_overflow) || (status.buf_1_overflow) || (status.buf_2_overflow) || (status.hblank_overflow))
 	{
@@ -1526,7 +1526,7 @@ isp_exp_handle:
 			goto unlock;
 		}
 	}
-	vfe_dbg(3,"status vsync = %d, framedone = %d, capdone = %d\n",status.vsync_trig,status.frame_done,status.capture_done);
+	// vfe_dbg(3,"status vsync = %d, framedone = %d, capdone = %d\n",status.vsync_trig,status.frame_done,status.capture_done);
 	if (dev->capture_mode == V4L2_MODE_IMAGE)
 	{
 		if(DEV_IS_ISP_USED)
@@ -1748,7 +1748,7 @@ static int buffer_prepare(struct videobuf_queue *vq, struct videobuf_buffer *vb,
 	struct vfe_buffer *buf = container_of(vb, struct vfe_buffer, vb);
 	int rc;
 
-	vfe_dbg(1,"buffer_prepare\n");
+	vfe_dbg(1,"buffer_prepare 0x%p\n",buf);
 
 	BUG_ON(NULL == dev->fmt);
 
@@ -1791,7 +1791,7 @@ static void buffer_queue(struct videobuf_queue *vq, struct videobuf_buffer *vb)
 	struct vfe_buffer *buf = container_of(vb, struct vfe_buffer, vb);
 	struct list_head*  vidq = &dev->dma_queue;
 
-	vfe_dbg(1,"buffer_queue\n");
+	vfe_dbg(1,"buffer_queue 0x%p\n",buf);
 	buf->vb.state = VIDEOBUF_QUEUED;
 	list_add_tail(&buf->vb.queue, vidq);
 }
@@ -1800,7 +1800,7 @@ static void buffer_release(struct videobuf_queue *vq,
          struct videobuf_buffer *vb)
 {
 	struct vfe_buffer *buf  = container_of(vb, struct vfe_buffer, vb);
-	vfe_dbg(1,"buffer_release\n");
+	// vfe_dbg(1,"buffer_release\n");
 	free_buffer(vq, buf);
 }
 
@@ -2614,7 +2614,7 @@ static int vidioc_querybuf(struct file *file, void *priv, struct v4l2_buffer *p)
 static int vidioc_qbuf(struct file *file, void *priv, struct v4l2_buffer *p)
 {
 	struct vfe_dev *dev = video_drvdata(file);
-
+	vfe_dbg(2, "vidioc qbuf %d\n", p->index);
 	return videobuf_qbuf(&dev->vb_vidq, p);
 }
 
@@ -2622,7 +2622,7 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *p)
 {
 	int ret = 0;
 	struct vfe_dev *dev = video_drvdata(file);
-	vfe_dbg(2,"vidioc dqbuf\n");
+	vfe_dbg(2,"vidioc dqbuf %d\n",p->index);
 	ret = videobuf_dqbuf(&dev->vb_vidq, p, file->f_flags & O_NONBLOCK);
 	//if (dev->isp_3a_result_pt != NULL && dev->is_bayer_raw)
 	//{
