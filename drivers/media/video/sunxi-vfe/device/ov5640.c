@@ -2547,10 +2547,9 @@ static struct regval_list sensor_fmt_yuv422_uyvy[] = {
   //{REG_TERM,VAL_TERM},
 };
 
-static struct regval_list sensor_fmt_raw[] = {
-	{ 0x4300,0xF8 },  // 0xF8 Raw+Bypass formatter
-//	{ 0x4300,0x00 },  // 0x00 BGGR sequence
-};
+//static struct regval_list sensor_fmt_raw[] = {
+//  
+//};
 
 static struct regval_list ae_average_tbl[] = {
   /* Whole Image Average */
@@ -4370,13 +4369,13 @@ static struct sensor_format_struct {
     .regs_size = ARRAY_SIZE(sensor_fmt_yuv422_vyuy),
     .bpp    = 2,
   },
-  {
-    .desc   = "Raw RGB Bayer",
-    .mbus_code  = V4L2_MBUS_FMT_SBGGR8_1X8,
-    .regs     = sensor_fmt_raw,
-    .regs_size = ARRAY_SIZE(sensor_fmt_raw),
-    .bpp    = 1
-  },
+//  {
+//    .desc   = "Raw RGB Bayer",
+//    .mbus_code  = V4L2_MBUS_FMT_SBGGR8_1X8,
+//    .regs     = sensor_fmt_raw,
+//    .regs_size = ARRAY_SIZE(sensor_fmt_raw),
+//    .bpp    = 1
+//  },
 };
 #define N_FMTS ARRAY_SIZE(sensor_formats)
 
