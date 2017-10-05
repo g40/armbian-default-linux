@@ -44,15 +44,12 @@ MODULE_DESCRIPTION("A low-level driver for ov5640 sensors (H3 / A20)");
 MODULE_LICENSE("GPL");
 
 #define AF_WIN_NEW_COORD
-//for internel driver debug
-#define DEV_DBG_EN      1   // 1 - Debugging / 0 - Release
-#if(DEV_DBG_EN == 1)    
-#define vfe_dev_dbg(x,arg...) printk("[OV5640@lex]"x,##arg)
-#else
-#define vfe_dev_dbg(x,arg...) 
-#endif
-#define vfe_dev_err(x,arg...) printk("[OV5640@lex]"x,##arg)
-#define vfe_dev_print(x,arg...) printk("[OV5640@lex]"x,##arg)
+
+//for internal driver debug
+#define vfe_dev_dbg(x,arg...) printk(KERN_DEBUG"%s(%d) "x,__FILE__,__LINE__,##arg)
+#define vfe_dev_err(x,arg...) printk(KERN_ERR"%s(%d) "x,__FILE__,__LINE__,##arg)
+#define vfe_dev_warn(x,arg...) printk(KERN_WARNING"%s(%d) "x,__FILE__,__LINE__,##arg)
+#define vfe_dev_print(x,arg...) printk(KERN_NOTICE"%s(%d) "x,__FILE__,__LINE__,##arg)
 
 #define CAP_BDG 0
 #if(CAP_BDG == 1)
@@ -191,21 +188,6 @@ static inline struct sensor_info *to_state(struct v4l2_subdev *sd)
 {
   return container_of(sd, struct sensor_info, sd);
 }
-
-#define _USE_BAYER
-
-#define ISP_CTL0 0x5000
-#define ISP_CTL1 0x5001
-
-#if defined(_USE_BAYER)
-// https://www.eevblog.com/forum/microcontrollers/anyone-used-an-ov5640-at-90fps/
-#define ISP_CTL0_FLAGS 0xA7
-#define ISP_CTL1_FLAGS 0x03
-#else
-#define ISP_CTL0_FLAGS 0xA7
-// works for YUV, not for Bayer
-#define ISP_CTL1_FLAGS 0xA3
-#endif
 
 /*
  * 
