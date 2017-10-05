@@ -51,6 +51,7 @@ MODULE_LICENSE("GPL");
 #define vfe_dev_warn(x,arg...) printk(KERN_WARNING"%s(%d) "x,__FILE__,__LINE__,##arg)
 #define vfe_dev_print(x,arg...) printk(KERN_NOTICE"%s(%d) "x,__FILE__,__LINE__,##arg)
 
+#define DEV_DBG_EN 0
 #define CAP_BDG 0
 #if(CAP_BDG == 1)
 #define vfe_dev_cap_dbg(x,arg...) printk("[OV5640_CAP_DBG@lex]"x,##arg)
