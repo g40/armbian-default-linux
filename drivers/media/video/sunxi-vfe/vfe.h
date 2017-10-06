@@ -6,6 +6,7 @@
 #define __VFE__H__
 
 
+#if 0
 #include <linux/types.h>
 #include <linux/interrupt.h>
 #include <linux/videodev2.h>
@@ -16,6 +17,7 @@
 #include <media/videobuf-core.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-mediabus.h>
+#endif
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #define CONFIG_ES
@@ -23,6 +25,8 @@
 #ifdef CONFIG_ES
 #include <linux/earlysuspend.h>
 #endif
+
+#include "os_headers.h"
 #include "platform_cfg.h"
 #include "flash_light/flash.h"
 #include "actuator/actuator.h"

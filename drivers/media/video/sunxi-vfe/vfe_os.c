@@ -1,5 +1,11 @@
-#include <linux/module.h>
-#include <linux/ion_sunxi.h>
+/*
+
+
+
+
+*/
+
+#include "os_headers.h"
 #include "vfe_os.h"
 
 unsigned int vfe_dbg_en = 1;

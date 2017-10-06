@@ -2,36 +2,9 @@
  * sunxi Camera Interface  driver
  * Author: raymonxiu
  */
-#include <linux/module.h>
-#include <linux/errno.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/sched.h>
-#include <linux/slab.h>
-#include <linux/version.h>
-#include <linux/mutex.h>
-#include <linux/videodev2.h>
-#include <linux/delay.h>
-#include <linux/string.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
-#include <linux/freezer.h>
-#endif
 
-#include <linux/io.h>
-#include <linux/platform_device.h>
-#include <linux/interrupt.h>
-#include <linux/i2c.h>
-#include <linux/moduleparam.h>
-#include <media/v4l2-device.h>
-#include <media/v4l2-ioctl.h>
-#include <media/v4l2-common.h>
-#include <media/v4l2-mediabus.h>
-#include <media/v4l2-subdev.h>
-#include <media/videobuf-dma-contig.h>
-
-#include <linux/regulator/consumer.h>
-#include <linux/ktime.h>
+#include "os_headers.h"
 #include "vfe.h"
 
 #include "bsp_common.h"
@@ -43,7 +16,7 @@
 #include "platform/vfe_resource.h"
 #include "utility/sensor_info.h"
 #include "utility/vfe_io.h"
-#include <linux/ion_sunxi.h>
+
 
 #define IS_FLAG(x,y) (((x)&(y)) == y)
 #define CLIP_MAX(x,max) ((x) > max ? max : x )
@@ -1488,17 +1461,6 @@ static void isp_isr_set_sensor_handle(struct work_struct* work)
 		mutex_unlock(&dev->isp_3a_result_mutex);
 	}
 	return;
-}
-
-static void vfe_isp_stat_parse(struct isp_gen_settings* isp_gen)
-{
-	unsigned int buffer_addr = (unsigned int)isp_gen->stat.stat_buf_whole->stat_buf;
-	isp_gen->stat.hist_buf = (void*) (buffer_addr);
-	isp_gen->stat.ae_buf =  (void*) (buffer_addr + ISP_STAT_AE_MEM_OFS);
-	isp_gen->stat.awb_buf = (void*) (buffer_addr + ISP_STAT_AWB_MEM_OFS);
-	isp_gen->stat.af_buf = (void*) (buffer_addr + ISP_STAT_AF_MEM_OFS);
-	isp_gen->stat.afs_buf = (void*) (buffer_addr + ISP_STAT_AFS_MEM_OFS);
-	isp_gen->stat.awb_win_buf = (void*) (buffer_addr + ISP_STAT_AWB_WIN_MEM_OFS);
 }
 
 /*

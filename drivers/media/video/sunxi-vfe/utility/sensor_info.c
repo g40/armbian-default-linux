@@ -13,10 +13,12 @@
  *
  ****************************************************************************************
  */
-#include <linux/kernel.h>
-#include <linux/string.h>
+
+#include "../os_headers.h"
 #include "sensor_info.h"
 #include "../platform_cfg.h"
+
+
 #define SENSOR_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 struct sensor_item sensor_list_t[] =
 {

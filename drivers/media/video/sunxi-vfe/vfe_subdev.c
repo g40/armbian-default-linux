@@ -1,5 +1,4 @@
-#include <linux/device.h>
-#include <linux/module.h>
+#include "os_headers.h"
 
 #include "vfe.h"
 #include "vfe_os.h"

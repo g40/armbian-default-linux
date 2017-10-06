@@ -5,19 +5,9 @@
 #ifndef __VFE__OS__H__
 #define __VFE__OS__H__
 
-#include <linux/device.h>
-#include <linux/clk.h>
-#include <linux/clk/sunxi.h>
-#include <linux/interrupt.h>
-//#include <linux/gpio.h>
-#include "platform_cfg.h"
 
-#ifdef SUNXI_MEM
-#include <linux/ion_sunxi.h>
-#include <linux/io.h>
-#else
-#include <linux/dma-mapping.h>
-#endif
+#include "os_headers.h"
+#include "platform_cfg.h"
 
 extern unsigned int vfe_dbg_en;
 extern unsigned int vfe_dbg_lv;

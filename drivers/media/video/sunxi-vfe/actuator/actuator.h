@@ -5,30 +5,9 @@
 #ifndef __ACTUATOR__H__
 #define __ACTUATOR__H__
 
-#include <linux/module.h>
-#include <linux/errno.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/sched.h>
-#include <linux/slab.h>
-#include <linux/version.h>
-#include <linux/mutex.h>
-#include <linux/videodev2.h>
-#include <linux/clk.h>
-#include <linux/delay.h>
-
-#include <media/v4l2-device.h>
-#include <media/v4l2-ioctl.h>
-#include <media/v4l2-common.h>
-#include <linux/io.h>
-#include <linux/platform_device.h>
-#include <linux/interrupt.h>
-#include <linux/i2c.h>
-#include <media/v4l2-subdev.h>
-//#include <media/videobuf-dma-contig.h>
-#include <linux/moduleparam.h>
+#include "../os_headers.h"
 #include "../csi_cci/cci_helper.h"
-//#include <linux/regulator/consumer.h>
+
 
 /*
 POS(STEP)     0----1---2--3...----------------------TOTAL_STEPS_ACTIVE
@@ -200,15 +179,6 @@ struct actuator_ctrl_t {
 	
 };
 
-int actuator_move_pos(struct actuator_ctrl_t *a_ctrl,
-		int num_steps,
-		int direction);
-//int actuator_init_table(struct actuator_ctrl_t *a_ctrl);
-//int actuator_set_default_focus(struct actuator_ctrl_t *a_ctrl);
-//int actuator_af_power_down(struct actuator_ctrl_t *a_ctrl);
-
-int actuator_write_focus(struct actuator_ctrl_t *a_ctrl,
-												 unsigned short pos);
 //		unsigned short curr_lens_pos,
 //		struct damping_params_t *damping_params,
 //		char sign_direction,
