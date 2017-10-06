@@ -25,10 +25,8 @@
 #endif
 #include "platform_cfg.h"
 #include "flash_light/flash.h"
-
 #include "actuator/actuator.h"
 #include "csi/bsp_csi.h"
-#include "mipi_csi/bsp_mipi_csi.h"
 #include "lib/bsp_isp.h"
 #include "lib/bsp_isp_algo.h"
 #include "vfe_subdev.h"
@@ -396,8 +394,6 @@ struct vfe_dev {
   //struct tasklet_struct   isp_isr_bh_task;
   struct work_struct      isp_isr_bh_task;
   struct work_struct      isp_isr_set_sensor_task;
-  struct mipi_para        mipi_para;
-  struct mipi_fmt         mipi_fmt;
   struct vfe_ctrl_para    ctrl_para;
   struct flash_dev_info                   *fl_dev_info;
   unsigned int						platform_id;
